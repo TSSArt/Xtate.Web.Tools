@@ -42,7 +42,7 @@ namespace Xtate.CustomAction
 		protected override DataModelValue Evaluate(IReadOnlyDictionary<string, DataModelValue> args)
 		{
 			if (args is null) throw new ArgumentNullException(nameof(args));
-			
+
 			var content = args[Content].AsStringOrDefault();
 			var capture = args[Capture].AsListOrEmpty();
 

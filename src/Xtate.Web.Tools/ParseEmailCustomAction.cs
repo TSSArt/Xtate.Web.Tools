@@ -25,7 +25,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using MimeKit;
 using Xtate.Service;
-
 #if !NET461 && !NETSTANDARD2_0
 using System.Buffers;
 
