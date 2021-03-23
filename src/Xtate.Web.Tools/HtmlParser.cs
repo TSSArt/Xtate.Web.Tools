@@ -90,11 +90,11 @@ namespace Xtate.Service
 			return CaptureData(htmlDocument, captures);
 		}
 
-		private static string[] GetArray(DataModelValue val) =>
-				val.Type == DataModelValueType.List
-						? val.AsList().Select(p => p.AsString()).Where(s => !string.IsNullOrEmpty(s)).ToArray()
-						: val.AsStringOrDefault() is { Length: >0 } str
-								? new[] { str }
+		private static string[] GetArray(in DataModelValue value) =>
+				value.Type == DataModelValueType.List
+						? value.AsList().Select(item => item.AsString()).Where(str => !string.IsNullOrEmpty(str)).ToArray()
+						: value.AsStringOrDefault() is { Length: >0 } stringValue
+								? new[] { stringValue }
 								: Array.Empty<string>();
 
 		private static DataModelValue CaptureData(HtmlDocument htmlDocument, IEnumerable<Capture> captures)
