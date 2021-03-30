@@ -33,7 +33,10 @@ namespace Xtate.Service
 	[PublicAPI]
 	public static class HtmlParser
 	{
-		public static async ValueTask<DataModelValue> TryParseHtmlAsync(Stream stream, Encoding? encoding, DataModelList parameters, CancellationToken token)
+		public static async ValueTask<DataModelValue> TryParseHtmlAsync(Stream stream,
+																		Encoding? encoding,
+																		DataModelList parameters,
+																		CancellationToken token)
 		{
 			if (stream is null) throw new ArgumentNullException(nameof(stream));
 			if (parameters is null) throw new ArgumentNullException(nameof(parameters));
@@ -77,10 +80,10 @@ namespace Xtate.Service
 						   let capture = pair.Value.AsListOrEmpty()
 						   select new Capture
 								  {
-										  Name = pair.Key,
-										  XPaths = GetArray(capture["xpath"]),
-										  Attributes = GetArray(capture["attr"]),
-										  Regex = capture["regex"].AsStringOrDefault()
+									  Name = pair.Key,
+									  XPaths = GetArray(capture["xpath"]),
+									  Attributes = GetArray(capture["attr"]),
+									  Regex = capture["regex"].AsStringOrDefault()
 								  };
 
 			var htmlDocument = new HtmlDocument();
@@ -91,11 +94,11 @@ namespace Xtate.Service
 		}
 
 		private static string[] GetArray(in DataModelValue value) =>
-				value.Type == DataModelValueType.List
-						? value.AsList().Select(item => item.AsString()).Where(str => !string.IsNullOrEmpty(str)).ToArray()
-						: value.AsStringOrDefault() is { Length: >0 } stringValue
-								? new[] { stringValue }
-								: Array.Empty<string>();
+			value.Type == DataModelValueType.List
+				? value.AsList().Select(item => item.AsString()).Where(str => !string.IsNullOrEmpty(str)).ToArray()
+				: value.AsStringOrDefault() is { Length: >0 } stringValue
+					? new[] { stringValue }
+					: Array.Empty<string>();
 
 		private static DataModelValue CaptureData(HtmlDocument htmlDocument, IEnumerable<Capture> captures)
 		{
@@ -171,20 +174,20 @@ namespace Xtate.Service
 		}
 
 		private static string? GetSpecialAttributeValue(HtmlNode node, string attr) =>
-				attr switch
-				{
-						"::value" => GetHtmlValue(node),
-						_ => null
-				};
+			attr switch
+			{
+				"::value" => GetHtmlValue(node),
+				_         => null
+			};
 
 		private static string? GetHtmlValue(HtmlNode node) =>
-				node.Name switch
-				{
-						"input" => GetInputValue(node),
-						"textarea" => GetInputValue(node),
-						"select" => GetSelectValue(node),
-						_ => null
-				};
+			node.Name switch
+			{
+				"input"    => GetInputValue(node),
+				"textarea" => GetInputValue(node),
+				"select"   => GetSelectValue(node),
+				_          => null
+			};
 
 		private static string? GetSelectValue(HtmlNode node)
 		{
@@ -195,12 +198,12 @@ namespace Xtate.Service
 		}
 
 		private static string? GetInputValue(HtmlNode node) =>
-				node.GetAttributeValue(name: @"type", def: null) switch
-				{
-						"radio" => GetValue(node, check: true),
-						"checkbox" => GetValue(node, check: true),
-						_ => GetValue(node, check: false)
-				};
+			node.GetAttributeValue(name: @"type", def: null) switch
+			{
+				"radio"    => GetValue(node, check: true),
+				"checkbox" => GetValue(node, check: true),
+				_          => GetValue(node, check: false)
+			};
 
 		private static string? GetValue(HtmlNode node, bool check)
 		{

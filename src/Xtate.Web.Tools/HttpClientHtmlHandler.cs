@@ -36,7 +36,11 @@ namespace Xtate.Service
 
 		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientHtmlHandler();
 
-		public override void PrepareRequest(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) => AppendAcceptHeader(webRequest, MediaTypeTextHtml);
+		public override void PrepareRequest(WebRequest webRequest,
+											string? contentType,
+											DataModelList parameters,
+											DataModelValue value) =>
+			AppendAcceptHeader(webRequest, MediaTypeTextHtml);
 
 		public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 		{
