@@ -3,7 +3,7 @@
   <Import Condition="'$(Version)'==''" Project="..\..\Version.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
     <RootNamespace>Xtate.Service</RootNamespace>
     <Nullable>enable</Nullable>
     <PackageId>Xtate.Web.Tools</PackageId>
