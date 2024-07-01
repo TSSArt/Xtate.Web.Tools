@@ -17,8 +17,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Xtate.Web.Tools\Xtate.Web.Tools.csproj" />
-  </ItemGroup>
-
 </Project>
