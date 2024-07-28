@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,9 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -25,44 +22,43 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
 
-namespace Xtate.Service
+namespace Xtate.Service;
+
+[PublicAPI]
+public class HttpClientHtmlHandler : HttpClientMimeTypeHandler
 {
-	[PublicAPI]
-	public class HttpClientHtmlHandler : HttpClientMimeTypeHandler
+	private const string MediaTypeTextHtml = "text/html";
+
+	private HttpClientHtmlHandler() { }
+
+	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientHtmlHandler();
+
+	public override void PrepareRequest(WebRequest webRequest,
+										string? contentType,
+										DataModelList parameters,
+										DataModelValue value) =>
+		AppendAcceptHeader(webRequest, MediaTypeTextHtml);
+
+	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 	{
-		private const string MediaTypeTextHtml = "text/html";
+		if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
+		if (parameters is null) throw new ArgumentNullException(nameof(parameters));
 
-		private HttpClientHtmlHandler() { }
-
-		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientHtmlHandler();
-
-		public override void PrepareRequest(WebRequest webRequest,
-											string? contentType,
-											DataModelList parameters,
-											DataModelValue value) =>
-			AppendAcceptHeader(webRequest, MediaTypeTextHtml);
-
-		public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeTextHtml))
 		{
-			if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
-			if (parameters is null) throw new ArgumentNullException(nameof(parameters));
+			return default;
+		}
 
-			if (!ContentTypeEquals(webResponse.ContentType, MediaTypeTextHtml))
-			{
-				return default;
-			}
+		var stream = webResponse.GetResponseStream();
 
-			var stream = webResponse.GetResponseStream();
+		Infra.NotNull(stream);
 
-			Infra.NotNull(stream);
+		XtateCore.Use();
+		await using (stream.ConfigureAwait(false))
+		{
+			var encoding = new ContentType(webResponse.ContentType).CharSet is { Length: > 0 } charSet ? Encoding.GetEncoding(charSet) : default;
 
-			XtateCore.Use();
-			await using (stream.ConfigureAwait(false))
-			{
-				var encoding = new ContentType(webResponse.ContentType).CharSet is { Length: >0 } charSet ? Encoding.GetEncoding(charSet) : default;
-
-				return await HtmlParser.TryParseHtmlAsync(stream, encoding, parameters, token).ConfigureAwait(false);
-			}
+			return await HtmlParser.TryParseHtmlAsync(stream, encoding, parameters, token).ConfigureAwait(false);
 		}
 	}
 }

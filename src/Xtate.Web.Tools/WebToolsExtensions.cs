@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,25 +15,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+using System.Xml;
+using Xtate.CustomAction;
+using Xtate.IoC;
 
-using System;
+namespace Xtate;
 
-namespace Xtate.CustomAction
+public static class WebToolsExtensions
 {
-	[PublicAPI]
-	public class WebToolsCustomActionFactory : CustomActionFactoryBase
+	public static void RegisterEcmaScriptDataModelHandler(this IServiceCollection services)
 	{
-		private const string Namespace = "http://xtate.net/scxml/webtools";
-
-		public static ICustomActionFactory Instance { get; } = new WebToolsCustomActionFactory();
-
-		protected override void Register(ICustomActionCatalog catalog)
+		if (services.IsRegistered<ParseHtmlCustomActionProvider>())
 		{
-			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
-
-			catalog.Register(Namespace, name: "parseHtml", () => new ParseHtmlCustomAction());
-			catalog.Register(Namespace, name: "parseEmail", () => new ParseEmailCustomAction());
+			return;
 		}
+
+		services.AddType<ParseEmailCustomAction, XmlReader>();
+		services.AddType<ParseHtmlCustomAction, XmlReader>();
+		services.AddSharedImplementation<ParseEmailCustomActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
+		services.AddSharedImplementation<ParseHtmlCustomActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
 	}
 }

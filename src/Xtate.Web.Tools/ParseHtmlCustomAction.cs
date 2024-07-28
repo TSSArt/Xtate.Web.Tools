@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,45 +15,41 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Service;
 
-namespace Xtate.CustomAction
+namespace Xtate.CustomAction;
+
+public class ParseHtmlCustomActionProvider() : CustomActionProvider<ParseEmailCustomAction>(ns: "http://xtate.net/scxml/webtools", name: "parseHtml");
+
+public class ParseHtmlCustomAction(XmlReader xmlReader) : CustomActionBase
 {
-	public class ParseHtmlCustomAction : CustomActionBase
+	private readonly Value       _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
+	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
+
+	public override IEnumerable<Value> GetValues()
 	{
-		private const string Content = "content";
-		private const string Capture = "capture";
-		private const string Result  = "result";
+		yield return _content;
+		yield return _capture;
+	}
 
-		protected override void Initialize(XmlReader xmlReader)
+	public override IEnumerable<Location> GetLocations() { yield return _result; }
+
+	public override async ValueTask Execute()
+	{
+		var content = await _content.GetValue().ConfigureAwait(false);
+
+		if (content is not null)
 		{
-			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
-
-			RegisterArgument(Content, ExpectedValueType.Any, xmlReader.GetAttribute(Content));
-			RegisterArgument(Capture, ExpectedValueType.Any, xmlReader.GetAttribute(Capture));
-			RegisterResultLocation(xmlReader.GetAttribute(Result));
-		}
-
-		protected override DataModelValue Evaluate(IReadOnlyDictionary<string, DataModelValue> args)
-		{
-			if (args is null) throw new ArgumentNullException(nameof(args));
-
-			var content = args[Content].AsStringOrDefault();
-			var capture = args[Capture].AsListOrEmpty();
-
-			if (content is null)
-			{
-				return DataModelValue.Null;
-			}
+			var capture = DataModelValue.FromObject(await _capture.GetValue().ConfigureAwait(false)).AsListOrEmpty();
 
 			var parameters = new DataModelList { { @"capture", capture } };
 
-			return HtmlParser.TryParseHtml(content, parameters);
+			var result = HtmlParser.TryParseHtml(content, parameters);
+
+			await _result.SetValue(result).ConfigureAwait(false);
 		}
 	}
 }
