@@ -33,7 +33,7 @@ public class ParseEmailCustomActionProvider() : CustomActionProvider<ParseEmailC
 
 public class ParseEmailCustomAction(XmlReader xmlReader) : CustomActionBase
 {
-	private readonly Value       _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+	private readonly ObjectValue       _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
 
