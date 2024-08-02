@@ -25,7 +25,7 @@ public class ParseHtmlCustomActionProvider() : CustomActionProvider<ParseEmailCu
 
 public class ParseHtmlCustomAction(XmlReader xmlReader) : CustomActionBase
 {
-	private readonly ObjectValue       _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
 

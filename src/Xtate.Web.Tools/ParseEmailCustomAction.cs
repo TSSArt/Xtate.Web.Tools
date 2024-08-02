@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using MimeKit;
 using Xtate.Service;
-#if NETCOREAPP2_1_OR_GREATER
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 using System.Buffers;
 
 #endif
@@ -33,7 +33,7 @@ public class ParseEmailCustomActionProvider() : CustomActionProvider<ParseEmailC
 
 public class ParseEmailCustomAction(XmlReader xmlReader) : CustomActionBase
 {
-	private readonly ObjectValue       _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
 
@@ -66,7 +66,7 @@ public class ParseEmailCustomAction(XmlReader xmlReader) : CustomActionBase
 		MimeMessage message;
 		var encoding = Encoding.ASCII;
 
-#if NETCOREAPP2_1_OR_GREATER
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 		var bytes = ArrayPool<byte>.Shared.Rent(encoding.GetMaxByteCount(content.Length));
 		try
 		{
