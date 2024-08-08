@@ -21,35 +21,29 @@ using Xtate.Service;
 
 namespace Xtate.CustomAction;
 
-public class ParseHtmlCustomActionProvider() : CustomActionProvider<ParseEmailCustomAction>(ns: "http://xtate.net/scxml/webtools", name: "parseHtml");
+public class ParseHtmlActionProvider() : ActionProvider<ParseHtmlAction>(ns: "http://xtate.net/scxml/webtools", name: "parseHtml");
 
-public class ParseHtmlCustomAction(XmlReader xmlReader) : CustomActionBase
+public class ParseHtmlAction(XmlReader xmlReader) : SyncAction
 {
 	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
 
-	public override IEnumerable<Value> GetValues()
+	protected override IEnumerable<Value> GetValues()
 	{
 		yield return _content;
 		yield return _capture;
 	}
 
-	public override IEnumerable<Location> GetLocations() { yield return _result; }
+	protected override IEnumerable<Location> GetLocations() { yield return _result; }
 
-	public override async ValueTask Execute()
+	protected override DataModelValue Evaluate()
 	{
-		var content = await _content.GetValue().ConfigureAwait(false);
-
-		if (content is not null)
-		{
-			var capture = DataModelValue.FromObject(await _capture.GetValue().ConfigureAwait(false)).AsListOrEmpty();
-
-			var parameters = new DataModelList { { @"capture", capture } };
-
-			var result = HtmlParser.TryParseHtml(content, parameters);
-
-			await _result.SetValue(result).ConfigureAwait(false);
-		}
+		var parameters = new DataModelList
+						 {
+							 { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
+						 };
+		
+		return HtmlParser.TryParseHtml(_content.Value, parameters);
 	}
 }

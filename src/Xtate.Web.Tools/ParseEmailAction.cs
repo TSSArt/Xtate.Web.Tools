@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,36 +30,30 @@ using System.Buffers;
 
 namespace Xtate.CustomAction;
 
-public class ParseEmailCustomActionProvider() : CustomActionProvider<ParseEmailCustomAction>(ns: "http://xtate.net/scxml/webtools", name: "parseEmail");
+public class ParseEmailActionProvider() : ActionProvider<ParseEmailAction>(ns: "http://xtate.net/scxml/webtools", name: "parseEmail");
 
-public class ParseEmailCustomAction(XmlReader xmlReader) : CustomActionBase
+public class ParseEmailAction(XmlReader xmlReader) : SyncAction
 {
 	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
 
-	public override IEnumerable<Value> GetValues()
+	protected override IEnumerable<Value> GetValues()
 	{
 		yield return _content;
 		yield return _capture;
 	}
 
-	public override IEnumerable<Location> GetLocations() { yield return _result; }
+	protected override IEnumerable<Location> GetLocations() { yield return _result; }
 
-	public override async ValueTask Execute()
+	protected override DataModelValue Evaluate()
 	{
-		var content = await _content.GetValue().ConfigureAwait(false);
-
-		if (content is not null)
-		{
-			var capture = DataModelValue.FromObject(await _capture.GetValue().ConfigureAwait(false)).AsListOrEmpty();
-
-			var parameters = new DataModelList { { @"capture", capture } };
-
-			var result = Parse(content, parameters);
-
-			await _result.SetValue(result).ConfigureAwait(false);
-		}
+		var parameters = new DataModelList
+						 {
+							 { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
+						 };
+		
+		return Parse(_content.Value, parameters);
 	}
 
 	private static DataModelValue Parse(string content, DataModelList parameters)

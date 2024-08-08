@@ -25,14 +25,14 @@ public static class WebToolsExtensions
 {
 	public static void RegisterEcmaScriptDataModelHandler(this IServiceCollection services)
 	{
-		if (services.IsRegistered<ParseHtmlCustomActionProvider>())
+		if (services.IsRegistered<ParseHtmlActionProvider>())
 		{
 			return;
 		}
 
-		services.AddType<ParseEmailCustomAction, XmlReader>();
-		services.AddType<ParseHtmlCustomAction, XmlReader>();
-		services.AddSharedImplementation<ParseEmailCustomActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
-		services.AddSharedImplementation<ParseHtmlCustomActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
+		services.AddType<ParseEmailAction, XmlReader>();
+		services.AddType<ParseHtmlAction, XmlReader>();
+		services.AddSharedImplementation<ParseEmailActionProvider>(SharedWithin.Scope).For<IActionProvider>();
+		services.AddSharedImplementation<ParseHtmlActionProvider>(SharedWithin.Scope).For<IActionProvider>();
 	}
 }
