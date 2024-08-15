@@ -4,8 +4,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;netstandard2.0;net462</TargetFrameworks>
-    <RootNamespace>Xtate.Service</RootNamespace>
-    <Nullable>enable</Nullable>
     <PackageId>Xtate.Web.Tools</PackageId>
     <RepositoryUrl>https://github.com/TSSArt/Xtate.Web.Tools</RepositoryUrl>
   </PropertyGroup>
@@ -15,7 +13,6 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.62" />
     <PackageReference Include="MailKit" Version="4.7.1.1" />
 
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" PrivateAssets="all" />
   </ItemGroup>
 
