@@ -41,17 +41,12 @@ public class HttpClientHtmlHandler : HttpClientMimeTypeHandler
 
 	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 	{
-		if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
-		if (parameters is null) throw new ArgumentNullException(nameof(parameters));
-
 		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeTextHtml))
 		{
 			return default;
 		}
 
-		var stream = webResponse.GetResponseStream();
-
-		Infra.NotNull(stream);
+		var stream = webResponse.GetResponseStream() ?? throw new InvalidOperationException();
 
 		XtateCore.Use();
 		await using (stream.ConfigureAwait(false))
