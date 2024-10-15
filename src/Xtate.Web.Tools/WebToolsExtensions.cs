@@ -32,7 +32,7 @@ public static class WebToolsExtensions
 
 		services.AddType<ParseEmailAction, XmlReader>();
 		services.AddType<ParseHtmlAction, XmlReader>();
-		services.AddSharedImplementation<ParseEmailActionProvider>(SharedWithin.Scope).For<IActionProvider>();
-		services.AddSharedImplementation<ParseHtmlActionProvider>(SharedWithin.Scope).For<IActionProvider>();
+		services.AddImplementation<ParseEmailActionProvider>().For<IActionProvider>();
+		services.AddImplementation<ParseHtmlActionProvider>().For<IActionProvider>();
 	}
 }
