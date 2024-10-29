@@ -38,6 +38,7 @@ public static class HtmlParser
 		if (parameters is null) throw new ArgumentNullException(nameof(parameters));
 
 		string html;
+
 		using (var streamReader = new StreamReader(stream.InjectCancellationToken(token), encoding ?? Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
 		{
 			html = await streamReader.ReadToEndAsync().ConfigureAwait(false);
@@ -52,6 +53,7 @@ public static class HtmlParser
 		if (parameters is null) throw new ArgumentNullException(nameof(parameters));
 
 		string html;
+
 		using (var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
 		{
 			html = streamReader.ReadToEnd();
@@ -234,6 +236,7 @@ public static class HtmlParser
 		var groupNames = regex.GetGroupNames();
 
 		var list = new DataModelList();
+
 		foreach (var name in groupNames)
 		{
 			list.Add(name, match.Groups[name].Value);
@@ -244,9 +247,12 @@ public static class HtmlParser
 
 	private readonly struct Capture
 	{
-		public string   Name       { get; init; }
-		public string[] XPaths     { get; init; }
+		public string Name { get; init; }
+
+		public string[] XPaths { get; init; }
+
 		public string[] Attributes { get; init; }
-		public string?  Regex      { get; init; }
+
+		public string? Regex { get; init; }
 	}
 }

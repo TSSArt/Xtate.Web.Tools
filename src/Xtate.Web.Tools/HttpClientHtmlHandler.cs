@@ -49,6 +49,7 @@ public class HttpClientHtmlHandler : HttpClientMimeTypeHandler
 		var stream = webResponse.GetResponseStream() ?? throw new InvalidOperationException();
 
 		XtateCore.Use();
+
 		await using (stream.ConfigureAwait(false))
 		{
 			var encoding = new ContentType(webResponse.ContentType).CharSet is { Length: > 0 } charSet ? Encoding.GetEncoding(charSet) : default;

@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Service;
 
@@ -26,8 +25,10 @@ public class ParseHtmlActionProvider() : ActionProvider<ParseHtmlAction>(ns: "ht
 public class ParseHtmlAction(XmlReader xmlReader) : SyncAction
 {
 	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
-	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
+
+	private readonly Location _result = new(xmlReader.GetAttribute("result"));
 
 	protected override IEnumerable<Value> GetValues()
 	{
@@ -43,7 +44,7 @@ public class ParseHtmlAction(XmlReader xmlReader) : SyncAction
 						 {
 							 { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
 						 };
-		
+
 		return HtmlParser.TryParseHtml(_content.Value, parameters);
 	}
 }

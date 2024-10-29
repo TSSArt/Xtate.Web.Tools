@@ -15,11 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 using MimeKit;
 using Xtate.Service;
@@ -35,8 +33,10 @@ public class ParseEmailActionProvider() : ActionProvider<ParseEmailAction>(ns: "
 public class ParseEmailAction(XmlReader xmlReader) : SyncAction
 {
 	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+
 	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
-	private readonly Location    _result  = new(xmlReader.GetAttribute("result"));
+
+	private readonly Location _result = new(xmlReader.GetAttribute("result"));
 
 	protected override IEnumerable<Value> GetValues()
 	{
@@ -52,7 +52,7 @@ public class ParseEmailAction(XmlReader xmlReader) : SyncAction
 						 {
 							 { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
 						 };
-		
+
 		return Parse(_content.Value, parameters);
 	}
 
@@ -63,6 +63,7 @@ public class ParseEmailAction(XmlReader xmlReader) : SyncAction
 
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 		var bytes = ArrayPool<byte>.Shared.Rent(encoding.GetMaxByteCount(content.Length));
+
 		try
 		{
 			var length = encoding.GetBytes(content, bytes);
@@ -111,6 +112,7 @@ public class ParseEmailAction(XmlReader xmlReader) : SyncAction
 		var groupNames = regex.GetGroupNames();
 
 		var list = new DataModelList();
+
 		foreach (var name in groupNames)
 		{
 			list.Add(name, match.Groups[name].Value);
