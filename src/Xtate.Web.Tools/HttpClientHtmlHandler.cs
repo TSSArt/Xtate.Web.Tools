@@ -21,8 +21,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
+using Xtate.ExternalService.HttpClient;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService;
 
 [PublicAPI]
 public class HttpClientHtmlHandler : HttpClientMimeTypeHandler

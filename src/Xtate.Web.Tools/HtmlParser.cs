@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Xtate.Core;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService;
 
 [PublicAPI]
 public static class HtmlParser

@@ -20,7 +20,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using MimeKit;
-using Xtate.Service;
+using Xtate.ExternalService;
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 using System.Buffers;
 
