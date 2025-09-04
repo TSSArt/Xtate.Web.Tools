@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,27 +24,30 @@ public class ParseHtmlActionProvider() : ActionProvider<ParseHtmlAction>(ns: "ht
 
 public class ParseHtmlAction(XmlReader xmlReader) : SyncAction
 {
-	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+    private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 
-	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
+    private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 
-	private readonly Location _result = new(xmlReader.GetAttribute("result"));
+    private readonly Location _result = new(xmlReader.GetAttribute("result"));
 
-	protected override IEnumerable<Value> GetValues()
-	{
-		yield return _content;
-		yield return _capture;
-	}
+    protected override IEnumerable<Value> GetValues()
+    {
+        yield return _content;
+        yield return _capture;
+    }
 
-	protected override IEnumerable<Location> GetLocations() { yield return _result; }
+    protected override IEnumerable<Location> GetLocations()
+    {
+        yield return _result;
+    }
 
-	protected override DataModelValue Evaluate()
-	{
-		var parameters = new DataModelList
-						 {
-							 { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
-						 };
+    protected override DataModelValue Evaluate()
+    {
+        var parameters = new DataModelList
+                         {
+                             { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
+                         };
 
-		return HtmlParser.TryParseHtml(_content.Value, parameters);
-	}
+        return HtmlParser.TryParseHtml(_content.Value, parameters);
+    }
 }

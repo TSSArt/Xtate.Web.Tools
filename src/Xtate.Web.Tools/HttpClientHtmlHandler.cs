@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -28,34 +28,34 @@ namespace Xtate.ExternalService;
 [PublicAPI]
 public class HttpClientHtmlHandler : HttpClientMimeTypeHandler
 {
-	private const string MediaTypeTextHtml = "text/html";
+    private const string MediaTypeTextHtml = "text/html";
 
-	private HttpClientHtmlHandler() { }
+    private HttpClientHtmlHandler() { }
 
-	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientHtmlHandler();
+    public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientHtmlHandler();
 
-	public override void PrepareRequest(WebRequest webRequest,
-										string? contentType,
-										DataModelList parameters,
-										DataModelValue value) =>
-		AppendAcceptHeader(webRequest, MediaTypeTextHtml);
+    public override void PrepareRequest(WebRequest webRequest,
+                                        string? contentType,
+                                        DataModelList parameters,
+                                        DataModelValue value) =>
+        AppendAcceptHeader(webRequest, MediaTypeTextHtml);
 
-	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
-	{
-		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeTextHtml))
-		{
-			return default;
-		}
+    public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+    {
+        if (!ContentTypeEquals(webResponse.ContentType, MediaTypeTextHtml))
+        {
+            return default;
+        }
 
-		var stream = webResponse.GetResponseStream() ?? throw new InvalidOperationException();
+        var stream = webResponse.GetResponseStream() ?? throw new InvalidOperationException();
 
-		XtateCore.Use();
+        XtateCore.Use();
 
-		await using (stream.ConfigureAwait(false))
-		{
-			var encoding = new ContentType(webResponse.ContentType).CharSet is { Length: > 0 } charSet ? Encoding.GetEncoding(charSet) : default;
+        await using (stream.ConfigureAwait(false))
+        {
+            var encoding = new ContentType(webResponse.ContentType).CharSet is { Length: > 0 } charSet ? Encoding.GetEncoding(charSet) : default;
 
-			return await HtmlParser.TryParseHtmlAsync(stream, encoding, parameters, token).ConfigureAwait(false);
-		}
-	}
+            return await HtmlParser.TryParseHtmlAsync(stream, encoding, parameters, token).ConfigureAwait(false);
+        }
+    }
 }

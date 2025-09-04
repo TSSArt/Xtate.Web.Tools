@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,16 +23,16 @@ namespace Xtate;
 
 public static class WebToolsExtensions
 {
-	public static void RegisterEcmaScriptDataModelHandler(this IServiceCollection services)
-	{
-		if (services.IsRegistered<ParseHtmlActionProvider>())
-		{
-			return;
-		}
+    public static void RegisterEcmaScriptDataModelHandler(this IServiceCollection services)
+    {
+        if (services.IsRegistered<ParseHtmlActionProvider>())
+        {
+            return;
+        }
 
-		services.AddType<ParseEmailAction, XmlReader>();
-		services.AddType<ParseHtmlAction, XmlReader>();
-		services.AddImplementation<ParseEmailActionProvider>().For<IActionProvider>();
-		services.AddImplementation<ParseHtmlActionProvider>().For<IActionProvider>();
-	}
+        services.AddType<ParseEmailAction, XmlReader>();
+        services.AddType<ParseHtmlAction, XmlReader>();
+        services.AddImplementation<ParseEmailActionProvider>().For<IActionProvider>();
+        services.AddImplementation<ParseHtmlActionProvider>().For<IActionProvider>();
+    }
 }

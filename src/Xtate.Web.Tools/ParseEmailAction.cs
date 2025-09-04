@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -32,92 +32,95 @@ public class ParseEmailActionProvider() : ActionProvider<ParseEmailAction>(ns: "
 
 public class ParseEmailAction(XmlReader xmlReader) : SyncAction
 {
-	private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
+    private readonly ObjectValue _capture = new(xmlReader.GetAttribute("captureExpr"), xmlReader.GetAttribute("capture"));
 
-	private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
+    private readonly StringValue _content = new(xmlReader.GetAttribute("contentExpr"), xmlReader.GetAttribute("content"));
 
-	private readonly Location _result = new(xmlReader.GetAttribute("result"));
+    private readonly Location _result = new(xmlReader.GetAttribute("result"));
 
-	protected override IEnumerable<Value> GetValues()
-	{
-		yield return _content;
-		yield return _capture;
-	}
+    protected override IEnumerable<Value> GetValues()
+    {
+        yield return _content;
+        yield return _capture;
+    }
 
-	protected override IEnumerable<Location> GetLocations() { yield return _result; }
+    protected override IEnumerable<Location> GetLocations()
+    {
+        yield return _result;
+    }
 
-	protected override DataModelValue Evaluate()
-	{
-		var parameters = new DataModelList
-						 {
-							 { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
-						 };
+    protected override DataModelValue Evaluate()
+    {
+        var parameters = new DataModelList
+                         {
+                             { @"capture", DataModelValue.FromObject(_capture.Value).AsListOrEmpty() }
+                         };
 
-		return Parse(_content.Value, parameters);
-	}
+        return Parse(_content.Value, parameters);
+    }
 
-	private static DataModelValue Parse(string content, DataModelList parameters)
-	{
-		MimeMessage message;
-		var encoding = Encoding.ASCII;
+    private static DataModelValue Parse(string content, DataModelList parameters)
+    {
+        MimeMessage message;
+        var encoding = Encoding.ASCII;
 
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
-		var bytes = ArrayPool<byte>.Shared.Rent(encoding.GetMaxByteCount(content.Length));
+        var bytes = ArrayPool<byte>.Shared.Rent(encoding.GetMaxByteCount(content.Length));
 
-		try
-		{
-			var length = encoding.GetBytes(content, bytes);
-			using var stream = new MemoryStream(bytes, index: 0, length);
-			message = MimeMessage.Load(stream);
-		}
-		finally
-		{
-			ArrayPool<byte>.Shared.Return(bytes);
-		}
+        try
+        {
+            var length = encoding.GetBytes(content, bytes);
+            using var stream = new MemoryStream(bytes, index: 0, length);
+            message = MimeMessage.Load(stream);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(bytes);
+        }
 #else
-		using (var stream = new MemoryStream(encoding.GetBytes(content)))
-		{
-			message = MimeMessage.Load(stream);
-		}
+        using (var stream = new MemoryStream(encoding.GetBytes(content)))
+        {
+            message = MimeMessage.Load(stream);
+        }
 #endif
 
-		if (message.HtmlBody is { } html)
-		{
-			return HtmlParser.TryParseHtml(html, parameters);
-		}
+        if (message.HtmlBody is { } html)
+        {
+            return HtmlParser.TryParseHtml(html, parameters);
+        }
 
-		if (message.TextBody is not { } text)
-		{
-			return default;
-		}
+        if (message.TextBody is not { } text)
+        {
+            return default;
+        }
 
-		if (parameters["regex"].AsStringOrDefault() is not { } pattern)
-		{
-			return text;
-		}
+        if (parameters["regex"].AsStringOrDefault() is not { } pattern)
+        {
+            return text;
+        }
 
-		var regex = new Regex(pattern);
-		var match = regex.Match(text);
+        var regex = new Regex(pattern);
+        var match = regex.Match(text);
 
-		if (!match.Success)
-		{
-			return default;
-		}
+        if (!match.Success)
+        {
+            return default;
+        }
 
-		if (match.Groups.Count == 1)
-		{
-			return match.Groups[0].Value;
-		}
+        if (match.Groups.Count == 1)
+        {
+            return match.Groups[0].Value;
+        }
 
-		var groupNames = regex.GetGroupNames();
+        var groupNames = regex.GetGroupNames();
 
-		var list = new DataModelList();
+        var list = new DataModelList();
 
-		foreach (var name in groupNames)
-		{
-			list.Add(name, match.Groups[name].Value);
-		}
+        foreach (var name in groupNames)
+        {
+            list.Add(name, match.Groups[name].Value);
+        }
 
-		return list;
-	}
+        return list;
+    }
 }
